@@ -11,8 +11,9 @@ export async function GET() {
 
   try {
     const auth = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
+    // Doğrudan yüklenen tüm resimleri tür kısıtlaması olmadan getirir
     const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?max_results=100`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?max_results=50&type=upload`,
       {
         headers: {
           Authorization: `Basic ${auth}`,
