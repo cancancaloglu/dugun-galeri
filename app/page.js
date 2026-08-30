@@ -1,10 +1,32 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, Download, Image as ImageIcon } from 'lucide-react';
 
 export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [photos, setPhotos] = useState([]);
+
+  // Cloudinary'ye önceden yüklenmiş fotoğrafları çek
+  const fetchPhotos = async () => {
+    try {
+      const res = await fetch(
+        'https://res.cloudinary.com/rb7os5iv/image/list/dugun.json'
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const urls = data.resources.map(
+          (img) => `https://res.cloudinary.com/rb7os5iv/image/upload/v${img.version}/${img.public_id}.${img.format}`
+        );
+        setPhotos(urls);
+      }
+    } catch (err) {
+      console.error('Fotoğraflar çekilemedi:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPhotos();
+  }, []);
 
   const handleUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -16,6 +38,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'dugun_preset');
+      formData.append('tags', 'dugun'); // Fotoğrafları listelemek için 'dugun' etiketi ekliyoruz
 
       try {
         const res = await fetch(
