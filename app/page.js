@@ -14,13 +14,15 @@ export default function Home() {
       );
       if (res.ok) {
         const data = await res.json();
-        const urls = data.resources.map(
-          (img) => `https://res.cloudinary.com/rb7os5iv/image/upload/v${img.version}/${img.public_id}.${img.format}`
-        );
-        setPhotos(urls);
+        if (data.resources) {
+          const urls = data.resources.map(
+            (img) => `https://res.cloudinary.com/rb7os5iv/image/upload/v${img.version}/${img.public_id}.${img.format}`
+          );
+          setPhotos(urls);
+        }
       }
     } catch (err) {
-      console.error('Fotoğraflar çekilemedi:', err);
+      // Liste henüz oluşmadıysa veya boşsa hatayı yok say
     }
   };
 
@@ -38,7 +40,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'dugun_preset');
-      formData.append('tags', 'dugun'); // Fotoğrafları listelemek için 'dugun' etiketi ekliyoruz
+      formData.append('tags', 'dugun');
 
       try {
         const res = await fetch(
