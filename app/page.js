@@ -6,20 +6,16 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [photos, setPhotos] = useState([]);
 
-  const fetchPhotos = async () => {
-    try {
-      const res = await fetch('/api/photos');
-      const data = await res.json();
-      if (data.photos) {
-        setPhotos(data.photos);
-      }
-    } catch (err) {
-      console.error('Fotoğraflar çekilemedi:', err);
-    }
-  };
-
+  // Sayfa açıldığında önceden kaydedilmiş fotoğrafları yükle
   useEffect(() => {
-    fetchPhotos();
+    const savedPhotos = localStorage.getItem('dugun_photos');
+    if (savedPhotos) {
+      try {
+        setPhotos(JSON.parse(savedPhotos));
+      } catch (e) {
+        console.error('Kayıtlı fotoğraflar okunamadı:', e);
+      }
+    }
   }, []);
 
   const handleUpload = async (e) => {
@@ -27,12 +23,12 @@ export default function Home() {
     if (files.length === 0) return;
 
     setUploading(true);
+    const newUrls = [];
 
     for (const file of files) {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'dugun_preset');
-      formData.append('tags', 'dugun');
 
       try {
         const res = await fetch(
@@ -45,15 +41,22 @@ export default function Home() {
 
         const data = await res.json();
         if (data.secure_url) {
-          setPhotos((prev) => [data.secure_url, ...prev]);
+          newUrls.push(data.secure_url);
         }
       } catch (err) {
         console.error('Yükleme hatası:', err);
       }
     }
 
+    if (newUrls.length > 0) {
+      setPhotos((prev) => {
+        const updated = [...newUrls, ...prev];
+        localStorage.setItem('dugun_photos', JSON.stringify(updated));
+        return updated;
+      });
+    }
+
     setUploading(false);
-    fetchPhotos();
   };
 
   return (
