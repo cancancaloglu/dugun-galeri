@@ -1,5 +1,5 @@
-import { v2 as cloudinary } from 'cloudinary';
 import { NextResponse } from 'next/server';
+import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -9,8 +9,8 @@ cloudinary.config({
 
 export async function POST(request) {
   try {
-    const data = await request.formData();
-    const file = data.get('file');
+    const formData = await request.formData();
+    const file = formData.get('file');
 
     if (!file) {
       return NextResponse.json({ error: 'Dosya bulunamadı' }, { status: 400 });
@@ -21,7 +21,7 @@ export async function POST(request) {
 
     const result = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder: 'dugun_fotograflari' },
+        { folder: 'dugun_galeri' },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -31,6 +31,7 @@ export async function POST(request) {
 
     return NextResponse.json({ url: result.secure_url });
   } catch (error) {
-    return NextResponse.json({ error: 'Yükleme başarısız' }, { status: 500 });
+    console.error('Upload Hata Detayı:', error);
+    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
   }
 }
