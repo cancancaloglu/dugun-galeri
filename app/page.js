@@ -15,16 +15,20 @@ export default function Home() {
     for (const file of files) {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('upload_preset', 'dugun_preset');
 
       try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+        const res = await fetch(
+          'https://api.cloudinary.com/v1_1/rb7os5iv/image/upload',
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
 
         const data = await res.json();
-        if (data.url) {
-          setPhotos((prev) => [data.url, ...prev]);
+        if (data.secure_url) {
+          setPhotos((prev) => [data.secure_url, ...prev]);
         }
       } catch (err) {
         console.error('Yükleme hatası:', err);
