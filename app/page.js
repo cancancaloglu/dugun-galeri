@@ -6,7 +6,7 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [photos, setPhotos] = useState([]);
 
-  // Sunucudan fotoğrafları çek
+  // Ortak sunucudan fotoğrafları çek
   const fetchPhotos = async () => {
     try {
       const res = await fetch('/api/photos');
@@ -54,6 +54,7 @@ export default function Home() {
     }
 
     setUploading(false);
+    // Yükleme bittikten sonra listeyi yenile
     setTimeout(fetchPhotos, 1000);
   };
 
