@@ -1,25 +1,35 @@
-import { v2 as cloudinary } from 'cloudinary';
 import { NextResponse } from 'next/server';
 
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 export async function GET() {
-  try {
-    const result = await cloudinary.search
-      .expression('folder:dugun OR tags:dugun')
-      .sort_by('created_at', 'desc')
-      .max_results(100)
-      .execute();
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'rb7os5iv';
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-    const photos = result.resources.map((file) => file.secure_url);
+  if (!apiKey || !apiSecret) {
+    return NextResponse.json({ photos: [] });
+  }
+
+  try {
+    const auth = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?max_results=100`,
+      {
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+        cache: 'no-store',
+      }
+    );
+
+    const data = await res.json();
+
+    const photos = data.resources
+      ? data.resources.map((img) => img.secure_url)
+      : [];
 
     return NextResponse.json({ photos });
   } catch (error) {
-    console.error('Cloudinary çekme hatası:', error);
+    console.error('Fotoğraf çekme hatası:', error);
     return NextResponse.json({ photos: [] }, { status: 500 });
   }
 }
