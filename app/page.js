@@ -6,23 +6,15 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [photos, setPhotos] = useState([]);
 
-  // Cloudinary'ye önceden yüklenmiş fotoğrafları çek
   const fetchPhotos = async () => {
     try {
-      const res = await fetch(
-        'https://res.cloudinary.com/rb7os5iv/image/list/dugun.json'
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.resources) {
-          const urls = data.resources.map(
-            (img) => `https://res.cloudinary.com/rb7os5iv/image/upload/v${img.version}/${img.public_id}.${img.format}`
-          );
-          setPhotos(urls);
-        }
+      const res = await fetch('/api/photos');
+      const data = await res.json();
+      if (data.photos) {
+        setPhotos(data.photos);
       }
     } catch (err) {
-      // Liste henüz oluşmadıysa veya boşsa hatayı yok say
+      console.error('Fotoğraflar çekilemedi:', err);
     }
   };
 
@@ -61,6 +53,7 @@ export default function Home() {
     }
 
     setUploading(false);
+    fetchPhotos();
   };
 
   return (
