@@ -11,7 +11,7 @@ export default function Home() {
     try {
       const res = await fetch('/api/photos');
       const data = await res.json();
-      if (data.photos) {
+      if (data.photos && Array.isArray(data.photos)) {
         setPhotos(data.photos);
       }
     } catch (err) {
@@ -33,7 +33,6 @@ export default function Home() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'dugun_preset');
-      formData.append('tags', 'dugun');
 
       try {
         const res = await fetch(
@@ -46,6 +45,7 @@ export default function Home() {
 
         const data = await res.json();
         if (data.secure_url) {
+          // Anında ekrana ekle
           setPhotos((prev) => [data.secure_url, ...prev]);
         }
       } catch (err) {
@@ -54,8 +54,8 @@ export default function Home() {
     }
 
     setUploading(false);
-    // Yükleme bittikten sonra listeyi yenile
-    setTimeout(fetchPhotos, 1000);
+    // Yükleme bittikten 1.5 sn sonra sunucudaki güncel listeyi tekrar kontrol et
+    setTimeout(fetchPhotos, 1500);
   };
 
   return (
