@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'rb7os5iv';
-  const apiKey = process.env.CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-  if (!apiKey || !apiSecret) {
-    return NextResponse.json({ photos: [] });
-  }
+  const cloudName = 'rb7os5iv';
+  const apiKey = '715273585356887';
+  const apiSecret = '1WwGolbd6hoWBq_CF6ymJBrQEAE';
 
   try {
     const auth = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
-    // Doğrudan yüklenen tüm resimleri tür kısıtlaması olmadan getirir
     const res = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?max_results=50&type=upload`,
       {
